@@ -25,7 +25,7 @@ def networkGraphRT(myusers):
 
     nodes=[]
     links= myusers["links"]
-    print(myusers)
+    #print(myusers)
     annot=[]
     score=[]
     c = 0
@@ -153,8 +153,8 @@ def networkGraphRT(myusers):
             #sizex=0.03,
             #sizey=0.03,
             #layer='above'
-            sizex=0.1,
-            sizey=0.1,
+            sizex=0.05,
+            sizey=0.05,
             #sizing="stretch",
             opacity=1,
             layer="below"
