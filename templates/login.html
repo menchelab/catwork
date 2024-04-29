@@ -1,0 +1,10 @@
+<h1>LOGIN</h1>
+
+Hello {{uid}}
+<p><h3>Enter userID</h3></p>
+<form action = "/setcookie" method = "POST">
+    <p><h3>Enter userID</h3></p>
+    <p><input type = 'hidden' name = 'uid' value = {{uid}}></p>
+    <p><input type = 'text' name = 'pw' /></p>
+    <p><input type = 'submit' value = 'Login'/></p>
+ </form>

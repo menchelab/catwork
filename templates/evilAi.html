@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/SwagStyle.css') }}">
+</link>
+<style>
+* {
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+body {
+	background-color: #272b34;
+	font-family: 'Khula', sans-serif;
+	font-weight: 300;
+	color: white;
+	line-height: 1em;
+	margin: 0;
+padding: 2em 1em;
+}
+
+</style>
+<body>
+
+
+
+
+    
+
+
+         
+            <img src="static/CAT_thumbs/70.png"><br><br>     
+            <div id="gptscrollbox" class="swagBox;" style="height:300px; width:100%; overflow:auto; font-size: 20px; line-height: 150%">
+                <font color='#13a3e9'>AI: Hello {{user}} !<br>
+                I am an artificial intelligence and i also attend this conference!<br>
+                I would be delighted to chat with you, and if you dont mind i have a little mission for you...<br>
+                Would you like to know, what i would like you to do for me?</font>
+            </div>
+            <br>
+            
+            
+            <img src="static/CAT_thumbs/{{uid}}.png">
+            <h1>{{user}}</h1>
+            <h1>{{uid}}</h1>
+            <br>
+            <h0>CHAT with the AI</h0>
+            <br>
+            <br>
+            <input id="gptText1" type="input"style= "height:100px; width:80%; overflow:auto;  font-size: 30px;"></input><button id="searchbutton1" class="swagButton" style="height:100px; width:20%; font-size: 30px;" onclick=gptChatQuery()>SEND</button> 
+            <br>
+            <br>
+            <h0>You can enter someones BADGE NUMBER to create a link OR scan the QR Code</h0> 
+            <br>
+            <br>
+            <h1>CONFERENCE CATWORK</h1>
+            <div id='chart' class='chart' style= "height:800px; width:100%; overflow:auto;"></div><br>
+            <h1>COOL CATs</h1>
+            <div id='bar' class='chart' style= "height:800px; width:100%; overflow:auto;"></div>
+            <div id ="imageContainer"></div>
+           
+
+
+    
+</body>
+
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+<script type='text/javascript'>
+var graphs = {{graphJSON | safe}};
+Plotly.plot('chart',graphs,{displayModeBar: false});
+
+var bars =  {{barJson | safe}};
+Plotly.plot('bar',bars,{displayModeBar: false});
+//var user_data = JSON.parse({{user|tojson}}); // get the input data called user
+var images =  {{AImages | safe}};
+console.log(images)
+
+var container = document.getElementById('imageContainer');
+var docFrag = document.createDocumentFragment();
+
+const NavBar = document.getElementsByClassName("modebar-container");
+for (let i = 0; i < NavBar.length; i++) {
+        NavBar[i].style.visibility = "hidden";
+}
+
+images.forEach(function(cur, index, arr) {
+
+    
+    var text = document.createElement('div');
+    text.innerHTML = cur["description"];
+    docFrag.appendChild(text);
+
+    var img = document.createElement('img');
+    img.src = cur["image_url"];
+    docFrag.appendChild(img);
+
+});
+
+
+container.appendChild(docFrag);
+
+
+
+
+function clearChat(){
+    document.getElementById("gptscrollbox").innerHTML = '';
+}
+
+function gptChatQuery(){
+    var text = document.getElementById("gptText1").value;
+    document.getElementById("gptText1").value = '';
+    gptQuery(text);
+}
+
+function gptQuery(text){
+
+    if (isNaN(parseInt(text)) == false || parseInt(text) > 230){
+    // grab the search query, parse it into a `URLSearchParams` set
+        const queryData = new URLSearchParams(window.location.search.slice(1))
+        // manipulate the parameters as desired
+        queryData.set("uid", parseInt(text))
+        // assemble the new URL using the current URL as the base
+        const newUrl = new URL(window.location.href)
+        newUrl.search = queryData
+        // redirect to the new URL
+        window.location.href = newUrl
+    }else{
+    //var text = document.getElementById("gptText1").value;
+    
+    var chatwin = document.getElementById("gptscrollbox");
+    var chat = chatwin.innerHTML + " HUMAN: " + text + " AI: ";
+    var id = {{uid}};
+    console.log(id);
+    fetch("/GPT", {
+            method: "POST",
+            body: JSON.stringify({
+                userId: id,
+                text: chat.replace("<br>", "\\n"),
+                completed: false
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+            })
+            .then((response) => response.json())
+            .then((json) => {
+                //console.log(json.text);
+                // SET CHAT DIV
+                chatwin.innerHTML += "<br> <font color='#9900FF'>HUMAN: " + text + "</font>"; 
+                chatwin.innerHTML += "<br><font color='#13a3e9'> AI: " + json.text + "</font>";
+                chatwin.scrollTop =  chatwin.scrollHeight;  
+                /*
+                if (json.text.indexOf('[') > -1) {
+                    json.text = json.text.substring(json.text.indexOf("["));
+                    console.log("is a list! sending it to server");
+                    console.log(json.text);
+                }
+               */
+
+                
+
+            });
+        }    
+}
+
+
+</script>
+</html>
